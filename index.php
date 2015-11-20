@@ -1,15 +1,19 @@
 <?php
 
-require 'vendor/autoload.php';
+require 'bootstrap.php';
+require 'services.php';
 
-$klein = new \Klein\Klein();
+$app->match('/', function(\Symfony\Component\HttpFoundation\Request $request) {
 
-$klein->respond(['GET', 'POST'], '/', function (\Klein\Request $request, \Klein\Response $response) {
+    return new \Symfony\Component\HttpFoundation\Response('Hello Silex', 202);
 
-    $response->code(202);
-    $response->body('Hello Response');
+})->method('GET|POST');
 
-    return $response;
+
+$app->post('/', function(\Symfony\Component\HttpFoundation\Request $request) {
+
+    return new \Symfony\Component\HttpFoundation\Response('Hello Silex', 202);
+
 });
 
-$klein->dispatch();
+$app->run();
