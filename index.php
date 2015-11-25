@@ -3,23 +3,18 @@
 require 'bootstrap.php';
 require 'services.php';
 
-$app->get('/', function(\Symfony\Component\HttpFoundation\Request $request) {
-
-    return new \Symfony\Component\HttpFoundation\Response('Hello Silex', 202);
-
+$app['hook.controller'] = $app->share(function () use ($app) {
+    return new \Alerts\Controllers\Hook(
+        $app['github.service']
+    );
 });
 
 
-$app->post('/', function(\Symfony\Component\HttpFoundation\Request $request) {
-
-    $content = json_decode($request->getContent(), true);
-
-    foreach ($content['commits'] as $commit) {
-
-    }
-
-    return new \Symfony\Component\HttpFoundation\Response('Hello Silex', 202);
-
+$app->get('/', function (\Symfony\Component\HttpFoundation\Request $request) use ($app) {
+    return new \Symfony\Component\HttpFoundation\Response('Hello Silex', 200);
 });
+
+
+$app->post('/', 'hook.controller:postIndex');
 
 $app->run();
