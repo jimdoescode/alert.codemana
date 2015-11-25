@@ -5,7 +5,8 @@ require 'services.php';
 
 $app['hook.controller'] = $app->share(function () use ($app) {
     return new \Alerts\Controllers\Hook(
-        $app['github.service']
+        $app['github.service'],
+        $app['emailer.service']
     );
 });
 

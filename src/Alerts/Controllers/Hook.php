@@ -11,12 +11,19 @@ class Hook
     private $githubService;
 
     /**
+     * @var Services\Interfaces\Emailer
+     */
+    private $emailerService;
+
+    /**
      * Hook constructor.
      * @param Services\GitHub $githubService
+     * @param Services\Interfaces\Emailer $emailerService
      */
-    public function __construct(Services\GitHub $githubService)
+    public function __construct(Services\GitHub $githubService, Services\Interfaces\Emailer $emailerService)
     {
         $this->githubService = $githubService;
+        $this->emailerService = $emailerService;
     }
 
     public function postIndex(HttpFoundation\Request $request)
