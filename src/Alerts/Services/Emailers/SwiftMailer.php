@@ -26,7 +26,7 @@ class SwiftMailer implements \Alerts\Services\Interfaces\Emailer
     public function send($email, $body)
     {
         $message = \Swift_Message::newInstance();
-        $message->setSubject('New Notification from Relay GSE');
+        $message->setSubject('CodeMana Alert');
         $message->setFrom($this->from);
         $message->setTo($email);
         $message->setBody($body, 'text/html');

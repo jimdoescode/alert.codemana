@@ -38,6 +38,13 @@ class Hook
             ['modified', 'removed']
         );
 
+        $body = '';
+        foreach ($files as $file) {
+            $body .= $file['patch'];
+        }
+
+        $this->emailerService->send('jimdoescode@gmail.com', $body);
+
         return new \Symfony\Component\HttpFoundation\Response('Hello Silex', 202);
     }
 }
