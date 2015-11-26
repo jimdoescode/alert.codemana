@@ -5,14 +5,16 @@ use \Alerts\Models;
 class Converter
 {
     /**
+     * @param string $fileName
      * @param string $rawFile
      * @return Models\PatchFile
      */
-    public function patchToModel($rawFile)
+    public function patchToModel($fileName, $rawFile)
     {
         $patch = new Models\PatchFile();
         $patch->lines = [];
         $patch->raw = $rawFile;
+        $patch->name = $fileName;
 
         if (preg_match_all('/@@\s-(\d+),.*\s@@/', $rawFile, $matches, PREG_OFFSET_CAPTURE)) {
 
