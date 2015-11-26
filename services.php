@@ -4,7 +4,8 @@ $app['emailer.service'] = $app->share(function () use ($app) {
 
     return new \Alerts\Services\Emailers\SwiftMailer(
         $app['mailer'], //Set by the SwiftmailerServiceProvider
-        [$app['email']['from'] => $app['email']['name']]
+        [$app['email']['from'] => $app['email']['name']],
+        $app['view.service']
     );
 
 });
@@ -32,4 +33,9 @@ $app['github.service'] = $app->share(function () use ($app) {
 
     return new \Alerts\Services\GitHub($client);
 
+});
+
+$app['converter.service'] = $app->share(function () use ($app) {
+
+    return new \Alerts\Services\Converter();
 });
