@@ -40,7 +40,7 @@ class Converter
                     $parsedLine->raw = $line;
                     $parsedLine->isAdded = ($line[0] === '+');
                     $parsedLine->isRemoved = ($line[0] === '-');
-                    $parsedLine->parsed = substr($line, 1);
+                    $parsedLine->parsed = htmlspecialchars(substr($line, 1));
                     if ($parsedLine->isAdded) {
                         $parsedLine->number = $posLineNumber;
                         $posLineNumber++;
@@ -48,7 +48,6 @@ class Converter
                     } elseif ($parsedLine->isRemoved) {
                         $parsedLine->number = $negLineNumber;
                         $negLineNumber++;
-                        $lineNumber++;
                     } else {
                         $parsedLine->number = $lineNumber;
                         $posLineNumber++;
