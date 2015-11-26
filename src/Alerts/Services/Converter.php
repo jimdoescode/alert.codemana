@@ -28,6 +28,12 @@ class Converter
                 $lines = explode("\n", $chunk);
                 array_shift($lines);
                 foreach ($lines as $line) {
+                    //Diff outputs this extra line if there is no newline at
+                    //the end of a file so we need to detect it and remove it
+                    if ($line === 'No newline at end of file') {
+                        break;
+                    }
+
                     $parsedLine = new Models\PatchLine();
                     $parsedLine->raw = $line;
                     $parsedLine->isAdded = ($line[0] === '+');
