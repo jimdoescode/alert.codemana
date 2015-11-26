@@ -9,6 +9,15 @@ $app['emailer.service'] = $app->share(function () use ($app) {
 
 });
 
+$app['view.service'] = $app->share(function () use ($app) {
+
+    return new \Symfony\Component\Templating\PhpEngine(
+        new \Alerts\Services\HtmlTemplateNameParser(__DIR__ . '/src/Alerts/Views'),
+        new \Symfony\Component\Templating\Loader\FilesystemLoader([])
+    );
+
+});
+
 $app['github.service'] = $app->share(function () use ($app) {
 
     $client = new \GuzzleHttp\Client([
