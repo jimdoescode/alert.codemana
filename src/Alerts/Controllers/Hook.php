@@ -16,14 +16,21 @@ class Hook
     private $emailerService;
 
     /**
+     * @var Services\Converter
+     */
+    private $converterService;
+
+    /**
      * Hook constructor.
      * @param Services\GitHub $githubService
      * @param Services\Interfaces\Emailer $emailerService
+     * @param Services\Converter $converterService
      */
-    public function __construct(Services\GitHub $githubService, Services\Interfaces\Emailer $emailerService)
+    public function __construct(Services\GitHub $githubService, Services\Interfaces\Emailer $emailerService, Services\Converter $converterService)
     {
         $this->githubService = $githubService;
         $this->emailerService = $emailerService;
+        $this->converterService = $converterService;
     }
 
     public function postIndex(HttpFoundation\Request $request)
@@ -38,13 +45,13 @@ class Hook
             ['modified', 'removed']
         );
 
-        $body = '';
+        $patchModels = [];
         foreach ($files as $file) {
-            $body .= $file['patch'];
+            $patchModels[] = $this->converterService->patchToModel($file['filename'], $file['patch']);
         }
 
-        $this->emailerService->send('jimdoescode@gmail.com', $body);
+        $this->emailerService->send('jimdoescode@gmail.com', $patchModels);
 
-        return new \Symfony\Component\HttpFoundation\Response('Hello Silex', 202);
+        return new \Symfony\Component\HttpFoundation\Response('Hello GitHub', 202);
     }
 }
