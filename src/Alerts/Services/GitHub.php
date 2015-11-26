@@ -30,7 +30,12 @@ class GitHub
      */
     public function filesChangedInPush($owner, $repo, $base, $head, $statusFilter = [])
     {
-        $response = $this->client->get("/repos/{$owner}/{$repo}/compare/{$base}...{$head}");
+        $response = $this->retryWithExponentialBackoff(3, function () use ($owner, $repo, $base, $head) {
+
+            return $this->client->get("/repos/{$owner}/{$repo}/compare/{$base}...{$head}");
+
+        });
+
         if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
             $comparison = json_decode($response->getBody(), true);
 
@@ -39,5 +44,37 @@ class GitHub
             });
         }
         return [];
+    }
+
+    /**
+     * Runs a closure until it succeeds or the maximum number of attempts is reached.
+     * There is an exponential back off (sleep) in milliseconds for each failed attempt.
+     *
+     * @param int $attempts
+     * @param callable $retry
+     * @return mixed
+     * @throws \Exception
+     */
+    private function retryWithExponentialBackoff($attempts, callable $retry)
+    {
+        for ($i = 1; $i <= $attempts; $i++) {
+            try {
+
+                return $retry();
+
+            } catch (\Exception $e) {
+
+                if ($i === $attempts) {
+                    //We failed so throw the exception to the caller
+                    throw $e;
+                } else {
+                    //Sleep for an exponentially increasing amount of seconds
+                    usleep(pow(2, $i) * 1000);
+                }
+            }
+        }
+
+        //This should never happen.
+        throw new \Exception('How\'d you get here?');
     }
 }
