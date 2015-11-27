@@ -21,7 +21,7 @@
             <tbody>
     <?php foreach ($file->chunks as $chunk): ?>
                 <tr style="background-color:#eee;color:#999;">
-                    <td colspan="2" style="font-family:Consolas,'Liberation Mono',Menlo,Courier,monospace;font-size:12px;line-height:18px;vertical-align:top;text-align: center;padding-left:10px;padding-right:10px;border-right:1px solid #ccc;">
+                    <td colspan="2" style="font-family:Consolas,'Liberation Mono',Menlo,Courier,monospace;font-size:12px;line-height:18px;vertical-align:top;text-align: center;padding-left:10px;padding-right:10px;border-right:1px solid #ddd;">
                         ...
                     </td>
                     <td style="font-family:Consolas,'Liberation Mono',Menlo,Courier,monospace;font-size:12px;line-height:18px;vertical-align:top;padding-left:10px;">
@@ -30,10 +30,10 @@
                 </tr>
         <?php foreach ($chunk->lines as $line): ?>
                 <tr style="background-color: <?=$line->isRemoved ? '#f99' : ($line->isAdded ? '#9e9' : '#fff');?>;">
-                    <td style="color:#888;width:1%;min-width:25px;font-family:Consolas,'Liberation Mono',Menlo,Courier,monospace;font-size:12px;line-height:18px;vertical-align:top;text-align:right;padding-left:10px;padding-right:10px;border-right:1px solid <?=$line->isRemoved ? '#f77' : ($line->isAdded ? '#7d7' : '#eee');?>;">
+                    <td style="color:#888;width:1%;min-width:25px;font-family:Consolas,'Liberation Mono',Menlo,Courier,monospace;font-size:12px;line-height:18px;vertical-align:top;text-align:right;padding-left:10px;padding-right:10px;border-right:1px solid <?=$line->isRemoved ? '#f88' : ($line->isAdded ? '#7d7' : '#eee');?>;">
                         <?=$line->oldNumber;?>
                     </td>
-                    <td style="color:#888;width:1%;min-width:25px;font-family:Consolas,'Liberation Mono',Menlo,Courier,monospace;font-size:12px;line-height:18px;vertical-align:top;text-align:right;padding-left:10px;padding-right:10px;border-right:1px solid <?=$line->isRemoved ? '#f77' : ($line->isAdded ? '#7d7' : '#eee');?>;">
+                    <td style="color:#888;width:1%;min-width:25px;font-family:Consolas,'Liberation Mono',Menlo,Courier,monospace;font-size:12px;line-height:18px;vertical-align:top;text-align:right;padding-left:10px;padding-right:10px;border-right:1px solid <?=$line->isRemoved ? '#f88' : ($line->isAdded ? '#7d7' : '#eee');?>;">
                         <?=$line->newNumber;?>
                     </td>
                     <td style="color:#444;font-family:Consolas,'Liberation Mono',Menlo,Courier,monospace;font-size:12px;line-height:18px;vertical-align:top;padding-left:10px;">
