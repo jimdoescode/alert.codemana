@@ -2,27 +2,30 @@
 <html lang="en">
     <head>
         <title>CodeMana Alert</title>
-        <style type="text/css">
-            p, ul {margin-bottom: 15px;}
-            a {color: #778abc;}
-        </style>
     </head>
     <body>
 <?php foreach ($patchFiles as $file): ?>
-        <table border="0" cellpadding="0" cellspacing="0">
+        <table style="width:100%;border-collapse:collapse;overflow:auto;border:1px solid #ddd;margin-bottom:30px;">
             <thead>
                 <tr>
-                    <td colspan="3">
-                        <?=$file->name;?>
+                    <td colspan="3" style="padding:5px 10px;background-color:#f7f7f7;border-bottom:1px solid #d8d8d8;">
+                        <div style="float: right;line-height:32px;font-size:12px;font-family:Consolas,'Liberation Mono',Menlo,Courier,monospace;font-style:italic;">Editors: <?=implode(',&nbsp;', $file->editors);?></div>
+                        <div style="float: left;line-height:32px;font-size:12px;font-family:Consolas,'Liberation Mono',Menlo,Courier,monospace;"><?=$file->name;?></div>
                     </td>
                 </tr>
             </thead>
             <tbody>
     <?php foreach ($file->lines as $line): ?>
-                <tr style="background-color: <?=$line->isRemoved ? '#f66' : ($line->isAdded ? '#6f6' : '#fff');?>;">
-                    <td><?=$line->isAdded ? '' : $line->number;?></td>
-                    <td><?=$line->isAdded ? $line->number : '';?></td>
-                    <td><pre><?=$line->parsed;?></pre></td>
+                <tr style="color:#111;background-color: <?=$line->isRemoved ? '#f99' : ($line->isAdded ? '#9e9' : '#fff');?>;">
+                    <td style="color:#444;width:1%;min-width:25px;font-family:Consolas,'Liberation Mono',Menlo,Courier,monospace;font-size:12px;line-height:18px;vertical-align:top;text-align:right;padding-left:10px;padding-right:10px;border-right:1px solid <?=$line->isRemoved ? '#f77' : ($line->isAdded ? '#7d7' : '#eee');?>;">
+                        <?=$line->isAdded ? '' : $line->number;?>
+                    </td>
+                    <td style="color:#444;width:1%;min-width:25px;font-family:Consolas,'Liberation Mono',Menlo,Courier,monospace;font-size:12px;line-height:18px;vertical-align:top;text-align:right;padding-left:10px;padding-right:10px;border-right:1px solid <?=$line->isRemoved ? '#f77' : ($line->isAdded ? '#7d7' : '#eee');?>;">
+                        <?=$line->isAdded ? $line->number : '';?>
+                    </td>
+                    <td style="color:#444;font-family:Consolas,'Liberation Mono',Menlo,Courier,monospace;font-size:12px;line-height:18px;vertical-align:top;padding-left:10px;">
+                        <pre style="margin:0;white-space:pre !important;"><code style="white-space:pre !important;"><?=$line->parsed;?></code></pre>
+                    </td>
                 </tr>
     <?php endforeach; ?>
             </tbody>
