@@ -20,7 +20,7 @@
             </thead>
             <tbody>
     <?php foreach ($file->chunks as $chunk): ?>
-                <tr style="background-color:#ddd;color:#999;">
+                <tr style="background-color:#eee;color:#999;">
                     <td colspan="2" style="font-family:Consolas,'Liberation Mono',Menlo,Courier,monospace;font-size:12px;line-height:18px;vertical-align:top;text-align: center;padding-left:10px;padding-right:10px;border-right:1px solid #ccc;">
                         ...
                     </td>
