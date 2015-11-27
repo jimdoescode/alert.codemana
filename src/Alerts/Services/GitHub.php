@@ -48,7 +48,7 @@ class GitHub
 
     /**
      * Runs a closure until it succeeds or the maximum number of attempts is reached.
-     * There is an exponential back off (sleep) in milliseconds for each failed attempt.
+     * There is an exponential back off (sleep) in seconds for each failed attempt.
      *
      * @param int $attempts
      * @param callable $retry
