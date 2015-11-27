@@ -18,7 +18,7 @@ class PatchFile
     public $lines;
 
     /**
-     * @var string
+     * @var array
      */
     public $editors;
 }

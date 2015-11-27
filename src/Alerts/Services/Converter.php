@@ -16,7 +16,7 @@ class Converter
         $patch->lines = [];
         $patch->raw = $rawFile;
         $patch->name = $fileName;
-        $patch->editors = implode(', ', $editors);
+        $patch->editors = $editors;
 
         if (preg_match_all('/@@\s-(\d+),.*\s@@/', $rawFile, $matches, PREG_OFFSET_CAPTURE)) {
 
