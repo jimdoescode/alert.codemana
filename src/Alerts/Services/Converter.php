@@ -13,22 +13,24 @@ class Converter
     public function patchToModel($fileName, $rawFile, $editors)
     {
         $patch = new Models\PatchFile();
-        $patch->lines = [];
+        $patch->chunks = [];
         $patch->raw = $rawFile;
         $patch->name = $fileName;
         $patch->editors = $editors;
 
-        if (preg_match_all('/@@\s-(\d+),.*\s@@/', $rawFile, $matches, PREG_OFFSET_CAPTURE)) {
+        if (preg_match_all('/@@ \-(\d+),\d+ \+(\d+),\d+ @@/', $rawFile, $matches, PREG_OFFSET_CAPTURE)) {
 
             $count = count($matches[0]);
             for ($i = 0; $i < $count; $i++) {
-                $chunk = $i < ($count - 1) ?
-                    substr($rawFile, $matches[0][$i][1], $matches[0][$i+1][1]) :
+                $chunk = new Models\PatchChunk();
+                $chunk->header = $matches[0][$i][0];
+                $rawChunk = $i < ($count - 1) ?
+                    substr($rawFile, $matches[0][$i][1], $matches[0][$i+1][1] - $matches[0][$i][1]) :
                     substr($rawFile, $matches[0][$i][1]);
 
                 $negLineNumber = $matches[1][$i][0];
-                $posLineNumber = $matches[1][$i][0];
-                $lines = explode("\n", $chunk);
+                $posLineNumber = $matches[2][$i][0];
+                $lines = explode("\n", $rawChunk);
                 array_shift($lines);
                 foreach ($lines as $line) {
                     //Diff outputs this extra line if there is no newline at
@@ -54,8 +56,9 @@ class Converter
                         $posLineNumber++;
                         $negLineNumber++;
                     }
-                    $patch->lines[] = $parsedLine;
+                    $chunk->lines[] = $parsedLine;
                 }
+                $patch->chunks[] = $chunk;
             }
         }
 

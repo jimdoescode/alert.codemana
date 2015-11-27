@@ -13,9 +13,9 @@ class PatchFile
     public $raw;
 
     /**
-     * @var PatchLine[]
+     * @var PatchChunk[]
      */
-    public $lines;
+    public $chunks;
 
     /**
      * @var array
