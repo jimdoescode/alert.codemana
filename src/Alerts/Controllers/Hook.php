@@ -36,22 +36,38 @@ class Hook
     public function postIndex(HttpFoundation\Request $request)
     {
         $hookContent = json_decode($request->getContent(), true);
+        $filters = ['modified', 'removed'];
 
         $files = $this->githubService->filesChangedInPush(
             $hookContent['repository']['owner']['name'],
             $hookContent['repository']['name'],
             $hookContent['before'],
             $hookContent['after'],
-            ['modified', 'removed']
+            $filters
         );
+
+        //Create an array of [edited-filename => [authors...]]
+        $fileEditors = [];
+        foreach ($hookContent['commits'] as $commit) {
+            foreach ($filters as $filter) {
+                foreach ($commit[$filter] as $file) {
+                    if (!array_key_exists($file, $fileEditors)) {
+                        $fileEditors[$file] = [];
+                    }
+                    $fileEditors[] = $commit['committer']['name'];
+                }
+            }
+        }
 
         $patchModels = [];
         foreach ($files as $file) {
-            $patchModels[] = $this->converterService->patchToModel($file['filename'], $file['patch']);
+            $patchModels[] = $this->converterService->patchToModel($file['filename'], $file['patch'], $fileEditors[$file['filename']]);
         }
 
         $this->emailerService->send('jimdoescode@gmail.com', $patchModels);
 
+        //202 means accepted but processing hasn't started yet. Perhaps we
+        //could offload the work from the server to some other worker process.
         return new \Symfony\Component\HttpFoundation\Response('Hello GitHub', 202);
     }
 }

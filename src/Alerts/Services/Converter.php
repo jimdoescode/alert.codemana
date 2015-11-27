@@ -7,14 +7,16 @@ class Converter
     /**
      * @param string $fileName
      * @param string $rawFile
+     * @param array $editors
      * @return Models\PatchFile
      */
-    public function patchToModel($fileName, $rawFile)
+    public function patchToModel($fileName, $rawFile, $editors)
     {
         $patch = new Models\PatchFile();
         $patch->lines = [];
         $patch->raw = $rawFile;
         $patch->name = $fileName;
+        $patch->editors = implode(', ', $editors);
 
         if (preg_match_all('/@@\s-(\d+),.*\s@@/', $rawFile, $matches, PREG_OFFSET_CAPTURE)) {
 
@@ -61,5 +63,4 @@ class Converter
 
         return $patch;
     }
-
 }
