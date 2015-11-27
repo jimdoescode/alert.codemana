@@ -34,7 +34,7 @@ class SwiftMailer implements \Alerts\Services\Interfaces\Emailer
     public function send($email, $patchFiles)
     {
         $message = \Swift_Message::newInstance();
-        $message->setSubject('CodeMana Alert');
+        $message->setSubject('Some code you are watching has been edited');
         $message->setFrom($this->from);
         $message->setTo($email);
         $message->setBody($this->view->render('htmlEmail', ['patchFiles' => $patchFiles]), 'text/html');
