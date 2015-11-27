@@ -54,7 +54,9 @@ class Hook
                     if (!array_key_exists($file, $fileEditors)) {
                         $fileEditors[$file] = [];
                     }
-                    $fileEditors[$file][] = $commit['committer']['name'];
+                    if (!in_array($commit['committer']['name'], $fileEditors[$file])) {
+                        $fileEditors[$file][] = $commit['committer']['name'];
+                    }
                 }
             }
         }
