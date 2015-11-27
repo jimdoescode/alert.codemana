@@ -20,9 +20,13 @@
             </thead>
             <tbody>
     <?php foreach ($file->chunks as $chunk): ?>
-                <tr style="">
-                    <td colspan="2" style="text-align: center;">...</td>
-                    <td><?=$chunk->header;?></td>
+                <tr style="background-color:#ddd;color:#999;">
+                    <td colspan="2" style="font-family:Consolas,'Liberation Mono',Menlo,Courier,monospace;font-size:12px;line-height:18px;vertical-align:top;text-align: center;padding-left:10px;padding-right:10px;border-right:1px solid #ccc;">
+                        ...
+                    </td>
+                    <td style="font-family:Consolas,'Liberation Mono',Menlo,Courier,monospace;font-size:12px;line-height:18px;vertical-align:top;padding-left:10px;">
+                        <?=$chunk->header;?>
+                    </td>
                 </tr>
         <?php foreach ($chunk->lines as $line): ?>
                 <tr style="background-color: <?=$line->isRemoved ? '#f99' : ($line->isAdded ? '#9e9' : '#fff');?>;">
