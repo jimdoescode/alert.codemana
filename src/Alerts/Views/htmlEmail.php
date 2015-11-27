@@ -11,7 +11,7 @@
                     <tr>
                         <td colspan="3" style="padding:5px 10px;background-color:#f7f7f7;border-bottom:1px solid #d8d8d8;">
                             <div style="color:#999;float:right;line-height:32px;font-size:12px;font-family:Consolas,'Liberation Mono',Menlo,Courier,monospace;font-style:italic;">
-                                Editor<?=count($file->editors) > 1 ? 's' : '';?>: <?=implode(',&nbsp;', $file->editors);?>
+                                Editor<?=count($file->editors) !== 1 ? 's' : '';?>: <?=empty($file->editors) ? 'Unknown' : implode(',&nbsp;', $file->editors);?>
                             </div>
                             <div style="color:#999;float:left;line-height:32px;font-size:12px;font-family:Consolas,'Liberation Mono',Menlo,Courier,monospace;">
                                 <?=$file->name;?>

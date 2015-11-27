@@ -1,0 +1,148 @@
+<?php namespace Alerts\Repositories\Http;
+
+use \Alerts\Repositories\Interfaces;
+use \Alerts\Models;
+
+class GitHub implements Interfaces\GitHub
+{
+    /**
+     * @var \GuzzleHttp\Client
+     */
+    private $client;
+
+    public function __construct()
+    {
+        $this->client = new \GuzzleHttp\Client([
+            // Default parameters
+            'defaults' => ['debug' => false, 'exceptions' => false],
+            // Base URI is used with relative requests
+            'base_uri' => 'https://api.github.com',
+            // You can set any number of default request options.
+            'timeout'  => 2.0,
+            //TODO: Here we would put in our github oauth credentials
+        ]);
+    }
+
+    /**
+     * Calls the route `/repos/:owner/:repo/compare/:base...:head` and returns all the patches
+     * with a status that matches the specified status filter.
+     *
+     * @param string $repo
+     * @param string $base
+     * @param string $head
+     * @param array $fileEditors
+     * @param array $statusFilter
+     * @return Models\PatchFile[]
+     */
+    public function getChangePatches($repo, $base, $head, $fileEditors, $statusFilter = [])
+    {
+        $response = $this->retryWithExponentialBackoff(3, function () use ($repo, $base, $head) {
+
+            return $this->client->get("/repos/{$repo}/compare/{$base}...{$head}");
+
+        });
+
+        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+            $comparison = json_decode($response->getBody(), true);
+
+            $filtered =  array_filter($comparison['files'], function ($file) use ($statusFilter) {
+                return in_array($file['status'], $statusFilter);
+            });
+
+            $patchModels = [];
+            foreach ($filtered as $file) {
+                $editors = isset($fileEditors[$file['filename']]) ? $fileEditors[$file['filename']] : [];
+                $patchModels[] = $this->patchToModel($file['filename'], $file['patch'], $editors);
+            }
+            return $patchModels;
+        }
+        return [];
+    }
+
+    private function patchToModel($filename, $rawFile, $fileEditors)
+    {
+        $patch = new Models\PatchFile();
+        $patch->chunks = [];
+        $patch->name = $filename;
+        $patch->raw = $rawFile;
+        $patch->editors = $fileEditors;
+
+        if (preg_match_all('/@@ \-(\d+),\d+ \+(\d+),\d+ @@/', $rawFile, $matches, PREG_OFFSET_CAPTURE)) {
+
+            $count = count($matches[0]);
+            for ($i = 0; $i < $count; $i++) {
+                $chunk = new Models\PatchChunk();
+                $chunk->header = $matches[0][$i][0];
+                $rawChunk = $i < ($count - 1) ?
+                    substr($rawFile, $matches[0][$i][1], $matches[0][$i+1][1] - $matches[0][$i][1]) :
+                    substr($rawFile, $matches[0][$i][1]);
+
+                $negLineNumber = $matches[1][$i][0];
+                $posLineNumber = $matches[2][$i][0];
+                $lines = explode("\n", $rawChunk);
+                array_shift($lines);
+                foreach ($lines as $line) {
+                    //Diff outputs this extra line if there is no newline at
+                    //the end of a file so we need to detect it and remove it
+                    if ($line === 'No newline at end of file') {
+                        break;
+                    }
+
+                    $parsedLine = new Models\PatchLine();
+                    $parsedLine->raw = $line;
+                    $parsedLine->isAdded = ($line[0] === '+');
+                    $parsedLine->isRemoved = ($line[0] === '-');
+                    $parsedLine->parsed = htmlspecialchars(substr($line, 1));
+                    if ($parsedLine->isAdded) {
+                        $parsedLine->newNumber = $posLineNumber;
+                        $posLineNumber++;
+                    } elseif ($parsedLine->isRemoved) {
+                        $parsedLine->oldNumber = $negLineNumber;
+                        $negLineNumber++;
+                    } else {
+                        $parsedLine->newNumber = $posLineNumber;
+                        $parsedLine->oldNumber = $negLineNumber;
+                        $posLineNumber++;
+                        $negLineNumber++;
+                    }
+                    $chunk->lines[] = $parsedLine;
+                }
+                $patch->chunks[] = $chunk;
+            }
+        }
+
+        return $patch;
+    }
+
+    /**
+     * Runs a closure until it succeeds or the maximum number of attempts is reached.
+     * There is an exponential back off (sleep) in seconds for each failed attempt.
+     *
+     * @param int $attempts
+     * @param callable $retry
+     * @return mixed
+     * @throws \Exception
+     */
+    private function retryWithExponentialBackoff($attempts, callable $retry)
+    {
+        for ($i = 1; $i <= $attempts; $i++) {
+            try {
+
+                return $retry();
+
+            } catch (\Exception $e) {
+
+                if ($i === $attempts) {
+                    //We failed so throw the exception to the caller
+                    throw $e;
+                } else {
+                    //Sleep for an exponentially increasing amount of seconds
+                    usleep(pow(2, $i) * 1000);
+                }
+            }
+        }
+
+        //This should never happen.
+        throw new \Exception('How\'d you get here?');
+    }
+}

@@ -2,13 +2,14 @@
 
 use \Symfony\Component\HttpFoundation;
 use \Alerts\Services;
+use \Alerts\Repositories\Interfaces;
 
 class Hook
 {
     /**
-     * @var Services\GitHub
+     * @var Interfaces\GitHub
      */
-    private $githubService;
+    private $githubRepo;
 
     /**
      * @var Services\Interfaces\Emailer
@@ -16,37 +17,29 @@ class Hook
     private $emailerService;
 
     /**
-     * @var Services\Converter
-     */
-    private $converterService;
-
-    /**
      * Hook constructor.
-     * @param Services\GitHub $githubService
+     * @param Interfaces\GitHub $githubRepo
      * @param Services\Interfaces\Emailer $emailerService
-     * @param Services\Converter $converterService
      */
-    public function __construct(Services\GitHub $githubService, Services\Interfaces\Emailer $emailerService, Services\Converter $converterService)
+    public function __construct(Interfaces\GitHub $githubRepo, Services\Interfaces\Emailer $emailerService)
     {
-        $this->githubService = $githubService;
+        $this->githubRepo = $githubRepo;
         $this->emailerService = $emailerService;
-        $this->converterService = $converterService;
     }
 
     public function postIndex(HttpFoundation\Request $request)
     {
+        $signature = $request->headers->get('X-Hub-Signature');
         $hookContent = json_decode($request->getContent(), true);
+
+        //Check the secret.
+        if ($signature !== hash_hmac('sha1', $hookContent, 'super_secret_key_thingy')) {
+            return new HttpFoundation\Response('You\'re not GitHub', 405);
+        }
+
         $filters = ['modified', 'removed'];
 
-        $files = $this->githubService->filesChangedInPush(
-            $hookContent['repository']['owner']['name'],
-            $hookContent['repository']['name'],
-            $hookContent['before'],
-            $hookContent['after'],
-            $filters
-        );
-
-        //Create an array of [edited-filename => [authors...]]
+        //Create an array of [filename => [editors...]]
         $fileEditors = [];
         foreach ($hookContent['commits'] as $commit) {
             foreach ($filters as $filter) {
@@ -61,15 +54,18 @@ class Hook
             }
         }
 
-        $patchModels = [];
-        foreach ($files as $file) {
-            $patchModels[] = $this->converterService->patchToModel($file['filename'], $file['patch'], $fileEditors[$file['filename']]);
-        }
+        $patchModels = $this->githubRepo->getChangePatches(
+            $hookContent['repository']['full_name'],
+            $hookContent['before'],
+            $hookContent['after'],
+            $fileEditors,
+            $filters
+        );
 
         $this->emailerService->send('jimdoescode@gmail.com', $patchModels);
 
         //202 means accepted but processing hasn't started yet. Perhaps we
         //could offload the work from the server to some other worker process.
-        return new \Symfony\Component\HttpFoundation\Response('Hello GitHub', 202);
+        return new HttpFoundation\Response('Hello GitHub', 202);
     }
 }
