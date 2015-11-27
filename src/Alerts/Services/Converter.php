@@ -26,7 +26,6 @@ class Converter
                     substr($rawFile, $matches[0][$i][1], $matches[0][$i+1][1]) :
                     substr($rawFile, $matches[0][$i][1]);
 
-                $lineNumber = $matches[1][$i][0];
                 $negLineNumber = $matches[1][$i][0];
                 $posLineNumber = $matches[1][$i][0];
                 $lines = explode("\n", $chunk);
@@ -44,17 +43,16 @@ class Converter
                     $parsedLine->isRemoved = ($line[0] === '-');
                     $parsedLine->parsed = htmlspecialchars(substr($line, 1));
                     if ($parsedLine->isAdded) {
-                        $parsedLine->number = $posLineNumber;
+                        $parsedLine->newNumber = $posLineNumber;
                         $posLineNumber++;
-                        $lineNumber++;
                     } elseif ($parsedLine->isRemoved) {
-                        $parsedLine->number = $negLineNumber;
+                        $parsedLine->oldNumber = $negLineNumber;
                         $negLineNumber++;
                     } else {
-                        $parsedLine->number = $lineNumber;
+                        $parsedLine->newNumber = $posLineNumber;
+                        $parsedLine->oldNumber = $negLineNumber;
                         $posLineNumber++;
                         $negLineNumber++;
-                        $lineNumber++;
                     }
                     $patch->lines[] = $parsedLine;
                 }

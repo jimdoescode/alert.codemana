@@ -10,7 +10,12 @@ class PatchLine
     /**
      * @var int
      */
-    public $number;
+    public $oldNumber;
+
+    /**
+     * @var int
+     */
+    public $newNumber;
 
     /**
      * @var bool
