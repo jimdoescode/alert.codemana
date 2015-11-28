@@ -1,0 +1,12 @@
+#Remove index.php from the URL
+<IfModule mod_rewrite.c>
+    Options -MultiViews
+
+    RewriteEngine On
+    #RewriteBase /path/to/app
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+#Make sure the Authorization header is marshalled to PHP
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1

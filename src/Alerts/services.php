@@ -13,7 +13,7 @@ $app['emailer.service'] = $app->share(function () use ($app) {
 $app['view.service'] = $app->share(function () use ($app) {
 
     return new \Symfony\Component\Templating\PhpEngine(
-        new \Alerts\Services\HtmlTemplateNameParser(__DIR__ . '/src/Alerts/Views'),
+        new \Alerts\Services\HtmlTemplateNameParser(__DIR__ . '/Views'),
         new \Symfony\Component\Templating\Loader\FilesystemLoader([])
     );
 
