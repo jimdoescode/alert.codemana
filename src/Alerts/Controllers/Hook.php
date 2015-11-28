@@ -17,24 +17,33 @@ class Hook
     private $emailerService;
 
     /**
+     * @var Interfaces\WatchedRepos
+     */
+    private $watchedReposRepository;
+
+    /**
      * Hook constructor.
      * @param Interfaces\GitHub $githubRepo
      * @param Services\Interfaces\Emailer $emailerService
+     * @param Interfaces\WatchedRepos $watchedReposRepository
      */
-    public function __construct(Interfaces\GitHub $githubRepo, Services\Interfaces\Emailer $emailerService)
+    public function __construct(Interfaces\GitHub $githubRepo, Services\Interfaces\Emailer $emailerService, Interfaces\WatchedRepos $watchedReposRepository)
     {
         $this->githubRepo = $githubRepo;
         $this->emailerService = $emailerService;
+        $this->watchedReposRepository = $watchedReposRepository;
     }
 
-    public function postIndex(HttpFoundation\Request $request)
+    public function postGithub(HttpFoundation\Request $request)
     {
         $signature = $request->headers->get('X-Hub-Signature');
-        $hookContent = json_decode($request->getContent(), true);
+        $rawContent = $request->getContent();
+        $hookContent = json_decode($rawContent, true);
 
-        //Check the secret.
-        if ($signature !== hash_hmac('sha1', $hookContent, 'super_secret_key_thingy')) {
-            return new HttpFoundation\Response('You\'re not GitHub', 405);
+        $watchedRepo = $this->watchedReposRepository->getById($hookContent['repository']['id']);
+
+        if ($signature !== ('sha1='.hash_hmac('sha1', $rawContent, $watchedRepo->secret))) {
+            return new HttpFoundation\Response('You\'re not GitHub', 403);
         }
 
         $filters = ['modified', 'removed'];
