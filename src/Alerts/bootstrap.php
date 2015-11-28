@@ -1,6 +1,6 @@
 <?php
 
-require '../../vendor/autoload.php';
+require __DIR__ . '/../../vendor/autoload.php';
 
 $app = new Silex\Application();
 //If no environment variable is set then default to dev.
