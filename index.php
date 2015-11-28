@@ -2,12 +2,13 @@
 
 require 'bootstrap.php';
 require 'services.php';
+require 'repositories.php';
 
 $app['hook.controller'] = $app->share(function () use ($app) {
     return new \Alerts\Controllers\Hook(
-        $app['github.service'],
+        $app['github.repository'],
         $app['emailer.service'],
-        $app['converter.service']
+        $app['watchedRepo.repository']
     );
 });
 
@@ -17,6 +18,6 @@ $app->get('/', function (\Symfony\Component\HttpFoundation\Request $request) use
 });
 
 
-$app->post('/', 'hook.controller:postIndex');
+$app->post('/hook/github', 'hook.controller:postGithub');
 
 $app->run();
