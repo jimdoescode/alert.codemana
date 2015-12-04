@@ -137,24 +137,40 @@ class GitHub implements Interfaces\GitHub
     public function getUserFromOAuth($code)
     {
         $response = $this->retryWithExponentialBackoff(3, function () use ($code) {
-
             return $this->client->post('/login/oauth/access_token', [
                 'base_uri' => 'https://github.com',
                 'body' => "client_id={$this->clientId}&client_secret={$this->clientSecret}&code={$code}"
             ]);
-
         });
 
+        $user = new Models\User();
         if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
             $authorization = json_decode($response->getBody(), true);
-            if ($authorization['scope'] === 'user:email,repo' || $authorization['scope'] === 'repo,user:email') {
-                return $authorization['access_token'];
-            } elseif (array_key_exists('error', $authorization)) {
+            if (array_key_exists('error', $authorization)) {
                 //TODO: Add a logger and log this
                 throw new \Exception($authorization['error_description']);
             }
+            $user->githubAccessToken = $authorization['access_token'];
         }
-        return null;
+
+        $response = $this->retryWithExponentialBackoff(3, function () use ($user) {
+            return $this->client->get('/user/emails', [
+                'headers' => [
+                    'Authorization' => "token {$user->githubAccessToken}",
+                ]
+            ]);
+        });
+
+        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+            $emails = json_decode($response->getBody(), true);
+            foreach ($emails as $email) {
+                if ($email['primary']) {
+                    $user->email = $email['email'];
+                }
+            }
+        }
+
+        return isset($user->email, $user->githubAccessToken) ? $user : null;
     }
 
     public function getAuthorizationRedirect()

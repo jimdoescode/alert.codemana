@@ -33,7 +33,7 @@ class GitHubOAuth
             return $this->github->getAuthorizationRedirect();
         }
 
-        $token = $this->github->getAccessToken($code);
-        return new HttpFoundation\JsonResponse(['token' => $token]);
+        $user = $this->github->getUserFromOAuth($code);
+        return new HttpFoundation\JsonResponse($user);
     }
 }
