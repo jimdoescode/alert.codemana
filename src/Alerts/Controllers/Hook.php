@@ -22,16 +22,25 @@ class Hook
     private $watchedReposRepository;
 
     /**
+     * @var \Monolog\Logger
+     */
+    private $logger;
+
+    /**
      * Hook constructor.
      * @param Interfaces\GitHub $githubRepo
      * @param Services\Interfaces\Emailer $emailerService
      * @param Interfaces\WatchedRepos $watchedReposRepository
      */
-    public function __construct(Interfaces\GitHub $githubRepo, Services\Interfaces\Emailer $emailerService, Interfaces\WatchedRepos $watchedReposRepository)
+    public function __construct(Interfaces\GitHub $githubRepo,
+                                Services\Interfaces\Emailer $emailerService,
+                                Interfaces\WatchedRepos $watchedReposRepository,
+                                \Monolog\Logger $logger)
     {
         $this->githubRepo = $githubRepo;
         $this->emailerService = $emailerService;
         $this->watchedReposRepository = $watchedReposRepository;
+        $this->logger = $logger;
     }
 
     public function postGithub(HttpFoundation\Request $request)
