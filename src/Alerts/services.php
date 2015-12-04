@@ -23,3 +23,13 @@ $app['converter.service'] = $app->share(function () use ($app) {
 
     return new \Alerts\Services\Converter();
 });
+
+$app['log.service'] = $app->share(function () use ($app) {
+    $handlers = [
+        //TODO: Uncomment whichever handler you want to use for logging.
+        //new \Monolog\Handler\RedisHandler($app['redis.service'], $app['log']['key'], $app['log']['level']),
+        //new \Monolog\Handler\DynamoDbHandler($app['dynamodb.service'], $app['log']['key'], $app['log']['level'])
+        new \Monolog\Handler\RotatingFileHandler($app['log']['file'], 1, $app['log']['level'])
+    ];
+    return new \Monolog\Logger($app['log']['name'], $handlers);
+});
