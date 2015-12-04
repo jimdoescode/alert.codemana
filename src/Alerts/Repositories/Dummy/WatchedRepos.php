@@ -14,4 +14,9 @@ class WatchedRepos implements Interfaces\WatchedRepos
         }
         return $model;
     }
+
+    public function save(Models\WatchedRepo &$model)
+    {
+        return true;
+    }
 }

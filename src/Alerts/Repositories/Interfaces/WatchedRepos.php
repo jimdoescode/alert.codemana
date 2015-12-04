@@ -9,4 +9,10 @@ interface WatchedRepos
      * @return Models\WatchedRepo;
      */
     public function getById($id);
+
+    /**
+     * @param Models\WatchedRepo &$model
+     * @return boolean
+     */
+    public function save(Models\WatchedRepo &$model);
 }
