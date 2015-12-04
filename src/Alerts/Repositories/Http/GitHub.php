@@ -2,6 +2,7 @@
 
 use \Alerts\Repositories\Interfaces;
 use \Alerts\Models;
+use Symfony\Component\HttpFoundation;
 
 class GitHub implements Interfaces\GitHub
 {
@@ -10,8 +11,24 @@ class GitHub implements Interfaces\GitHub
      */
     private $client;
 
-    public function __construct()
+    /**
+     * @var string
+     */
+    private $clientId;
+
+    /**
+     * @var string
+     */
+    private $clientSecret;
+
+    public function __construct($clientId, $clientSecret, $oauthToken = null)
     {
+        $headers = [];
+        $headers['Accept'] = 'application/json';
+        if (!is_null($oauthToken)) {
+            $headers['Authorization'] = "token {$oauthToken}";
+        }
+
         $this->client = new \GuzzleHttp\Client([
             // Default parameters
             'defaults' => ['debug' => false, 'exceptions' => false],
@@ -19,8 +36,11 @@ class GitHub implements Interfaces\GitHub
             'base_uri' => 'https://api.github.com',
             // You can set any number of default request options.
             'timeout'  => 2.0,
-            //TODO: Here we would put in our github oauth credentials
+            'headers' => $headers
         ]);
+
+        $this->clientId = $clientId;
+        $this->clientSecret = $clientSecret;
     }
 
     /**
@@ -113,6 +133,36 @@ class GitHub implements Interfaces\GitHub
 
         return $patch;
     }
+
+    public function getUserFromOAuth($code)
+    {
+        $response = $this->retryWithExponentialBackoff(3, function () use ($code) {
+
+            return $this->client->post('/login/oauth/access_token', [
+                'base_uri' => 'https://github.com',
+                'body' => "client_id={$this->clientId}&client_secret={$this->clientSecret}&code={$code}"
+            ]);
+
+        });
+
+        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+            $authorization = json_decode($response->getBody(), true);
+            if ($authorization['scope'] === 'user:email,repo' || $authorization['scope'] === 'repo,user:email') {
+                return $authorization['access_token'];
+            } elseif (array_key_exists('error', $authorization)) {
+                //TODO: Add a logger and log this
+                throw new \Exception($authorization['error_description']);
+            }
+        }
+        return null;
+    }
+
+    public function getAuthorizationRedirect()
+    {
+        $url = "https://github.com/login/oauth/authorize?client_id={$this->clientId}&scope=user:email,repo";
+        return new HttpFoundation\RedirectResponse($url);
+    }
+
 
     /**
      * Runs a closure until it succeeds or the maximum number of attempts is reached.

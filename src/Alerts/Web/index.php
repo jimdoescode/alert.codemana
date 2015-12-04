@@ -8,10 +8,35 @@ $app['hook.controller'] = $app->share(function () use ($app) {
     return new \Alerts\Controllers\Hook(
         $app['github.repository'],
         $app['emailer.service'],
-        $app['watchedRepos.repository']
+        $app['watchedRepos.repository'],
+        $app['log.service']
     );
 });
 
+$app['github.oauth.controller'] = $app->share(function () use ($app) {
+    return new \Alerts\Controllers\GitHubOAuth(
+        $app['github.repository'],
+        $app['log.service']
+    );
+});
+
+$app->error(function(\Exception $e, $code) use ($app) {
+    $response = ['message' => $e->getMessage()];
+
+    if ($app['debug']) {
+        $response['file'] = $e->getFile();
+        $response['line'] = $e->getLine();
+        $response['trace'] = $e->getTrace();
+    }
+
+    $app['log.service']->error($e->getMessage(), [
+        'file' => $e->getFile(),
+        'line' => $e->getLine(),
+        'trace' => $e->getTraceAsString()
+    ]);
+
+    return new \Symfony\Component\HttpFoundation\JsonResponse($response, $code);
+});
 
 $app->get('/', function (\Symfony\Component\HttpFoundation\Request $request) use ($app) {
     $patchModels = $app['github.repository']->getChangePatches(
@@ -30,5 +55,6 @@ $app->get('/', function (\Symfony\Component\HttpFoundation\Request $request) use
 
 
 $app->post('/hooks/github', 'hook.controller:postGithub');
+$app->get('/github/authorize', 'github.oauth.controller:getAuthorize');
 
 $app->run();

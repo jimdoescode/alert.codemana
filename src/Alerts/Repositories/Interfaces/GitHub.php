@@ -1,6 +1,7 @@
 <?php namespace Alerts\Repositories\Interfaces;
 
 use \Alerts\Models;
+use \Symfony\Component\HttpFoundation;
 
 interface GitHub
 {
@@ -16,4 +17,20 @@ interface GitHub
      * @return Models\PatchFile[]
      */
     public function getChangePatches($repo, $base, $head, $fileEditors, $statusFilter = []);
+
+    /**
+     * POSTs to https://github.com/login/oauth/access_token to get an access token from the code. Then gets
+     * data to construct a user model
+     *
+     * @param $code
+     * @return Models\User
+     */
+    public function getUserFromOAuth($code);
+
+    /**
+     * Generates a redirect response to use for OAuth token authorization
+     *
+     * @return HttpFoundation\RedirectResponse
+     */
+    public function getAuthorizationRedirect();
 }
