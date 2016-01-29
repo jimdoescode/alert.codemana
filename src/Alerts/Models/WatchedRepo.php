@@ -10,5 +10,15 @@ class WatchedRepo
     /**
      * @var string
      */
+    public $name;
+
+    /**
+     * @var string
+     */
     public $secret;
+
+    /**
+     * @var WatchedFile[]
+     */
+    public $watchedFiles;
 }

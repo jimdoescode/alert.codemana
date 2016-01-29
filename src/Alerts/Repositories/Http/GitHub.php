@@ -170,6 +170,25 @@ class GitHub implements Interfaces\GitHub
             }
         }
 
+        $response = $this->retryWithExponentialBackoff(3, function () use ($user) {
+            return $this->client->get('/user/repos', [
+                'headers' => [
+                    'Authorization' => "token {$user->githubAccessToken}",
+                ]
+            ]);
+        });
+
+        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+            $repos = json_decode($response->getBody(), true);
+            $user->githubRepos = [];
+            foreach ($repos as $repo) {
+                $model = new Models\Repo();
+                $model->name = $repo['full_name'];
+                $model->isAdmin = $repo['permissions']['admin'];
+                $user->githubRepos[] = $model;
+            }
+        }
+
         return isset($user->email, $user->githubAccessToken) ? $user : null;
     }
 
@@ -177,6 +196,31 @@ class GitHub implements Interfaces\GitHub
     {
         $url = "https://github.com/login/oauth/authorize?client_id={$this->clientId}&scope=user:email,repo";
         return new HttpFoundation\RedirectResponse($url);
+    }
+
+    public function installHook(Models\User $user, Models\WatchedRepo $repo, $callbackUrl)
+    {
+        $response = $this->retryWithExponentialBackoff(3, function () use ($user, $repo, $callbackUrl) {
+
+            $request = [
+                'name' => 'web',
+                'active' => true,
+                'config' => [
+                    'url' => "{$callbackUrl}/hooks/github",
+                    'content_type' => 'json',
+                    'secret' => $repo->secret,
+                ]
+            ];
+
+            return $this->client->post("/repos/{$repo->name}/hooks", [
+                'headers' => ['Authorization' => "token {$user->githubAccessToken}"],
+                'body' => json_encode($request)
+            ]);
+        });
+
+        //If we were successful return a watched repo model otherwise return null.
+        //TODO: If we weren't successful then we should probably log what the response is.
+        return $response->getStatusCode() >= 200 && $response->getStatusCode() < 300;
     }
 
 

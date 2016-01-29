@@ -43,7 +43,7 @@ class Hook
         $this->logger = $logger;
     }
 
-    public function postGithub(HttpFoundation\Request $request)
+    public function postGitHub(HttpFoundation\Request $request)
     {
         $signature = $request->headers->get('X-Hub-Signature');
         $rawContent = $request->getContent();
@@ -51,8 +51,14 @@ class Hook
 
         $watchedRepo = $this->watchedReposRepository->getById($hookContent['repository']['id']);
 
-        if ($signature !== ('sha1='.hash_hmac('sha1', $rawContent, $watchedRepo->secret))) {
+        if ($signature !== ('sha1=' . hash_hmac('sha1', $rawContent, $watchedRepo->secret))) {
             return new HttpFoundation\Response('You\'re not GitHub', 403);
+        }
+
+        //If a field called hook exists in the content sent
+        //to us then we'll say it's installed.
+        if (isset($hookContent['hook'])) {
+            return new HttpFoundation\Response('Hook Installed', 202);
         }
 
         $filters = ['modified', 'removed'];

@@ -33,4 +33,14 @@ interface GitHub
      * @return HttpFoundation\RedirectResponse
      */
     public function getAuthorizationRedirect();
+
+    /**
+     * Installs the hook
+     *
+     * @param Models\User $user
+     * @param Models\WatchedRepo $repo
+     * @param $callbackUrl
+     * @return bool
+     */
+    public function installHook(Models\User $user, Models\WatchedRepo $repo, $callbackUrl);
 }

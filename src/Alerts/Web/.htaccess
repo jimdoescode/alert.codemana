@@ -3,6 +3,10 @@
     Options -MultiViews
 
     RewriteEngine On
+    #Redirect non-ssl requests to https
+    RewriteCond %{SERVER_PORT} 80
+    RewriteRule ^(.*)$ https://alerts.codemana.com/$1 [R=301,L]
+
     #RewriteBase /path/to/app
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [QSA,L]

@@ -6,9 +6,14 @@ interface WatchedRepos
 {
     /**
      * @param int $id
-     * @return Models\WatchedRepo;
+     * @return Models\WatchedRepo
      */
     public function getById($id);
+
+    /**
+     * @return Models\WatchedRepo
+     */
+    public function createNew(Models\Repo $repo);
 
     /**
      * @param Models\WatchedRepo &$model

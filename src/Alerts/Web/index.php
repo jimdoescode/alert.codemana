@@ -4,6 +4,15 @@ require '../bootstrap.php';
 require '../services.php';
 require '../repositories.php';
 
+$app['install.controller'] = $app->share(function () use ($app) {
+    return new \Alerts\Controllers\Install(
+        $app['github.repository'],
+        $app['watchedRepos.repository'],
+        $app['project.url'],
+        $app['log.service']
+    );
+});
+
 $app['hook.controller'] = $app->share(function () use ($app) {
     return new \Alerts\Controllers\Hook(
         $app['github.repository'],
@@ -53,8 +62,8 @@ $app->get('/', function (\Symfony\Component\HttpFoundation\Request $request) use
     );
 });
 
-
-$app->post('/hooks/github', 'hook.controller:postGithub');
+$app->post('/hooks/github', 'hook.controller:postGitHub');
+$app->get('/hooks/github/install', 'install.controller:postGitHub');
 $app->get('/github/authorize', 'github.oauth.controller:getAuthorize');
 
 $app->run();
