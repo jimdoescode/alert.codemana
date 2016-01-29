@@ -153,8 +153,9 @@ class GitHub implements Interfaces\GitHub
             $user->githubAccessToken = $authorization['access_token'];
         }
 
+        //Fetch user data.
         $response = $this->retryWithExponentialBackoff(3, function () use ($user) {
-            return $this->client->get('/user/emails', [
+            return $this->client->get('/user', [
                 'headers' => [
                     'Authorization' => "token {$user->githubAccessToken}",
                 ]
@@ -162,14 +163,11 @@ class GitHub implements Interfaces\GitHub
         });
 
         if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
-            $emails = json_decode($response->getBody(), true);
-            foreach ($emails as $email) {
-                if ($email['primary']) {
-                    $user->email = $email['email'];
-                }
-            }
+            $user->email = $response['email'];
+            $user->githubId = $response['id'];
         }
 
+        //Fetch user's repos.
         $response = $this->retryWithExponentialBackoff(3, function () use ($user) {
             return $this->client->get('/user/repos', [
                 'headers' => [
@@ -189,7 +187,7 @@ class GitHub implements Interfaces\GitHub
             }
         }
 
-        return isset($user->email, $user->githubAccessToken) ? $user : null;
+        return isset($user->githubId, $user->githubAccessToken) ? $user : null;
     }
 
     public function getAuthorizationRedirect()

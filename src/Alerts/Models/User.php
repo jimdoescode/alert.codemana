@@ -13,6 +13,11 @@ class User
     public $email;
 
     /**
+     * @var int
+     */
+    public $githubId;
+
+    /**
      * @var string
      */
     public $githubAccessToken;
