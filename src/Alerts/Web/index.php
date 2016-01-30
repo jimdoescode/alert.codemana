@@ -1,8 +1,6 @@
 <?php
 
 require '../bootstrap.php';
-require '../services.php';
-require '../repositories.php';
 
 $app['install.controller'] = $app->share(function () use ($app) {
     return new \Alerts\Controllers\Install(

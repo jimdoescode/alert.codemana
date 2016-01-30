@@ -9,3 +9,6 @@ $app['env'] = getenv('APP_ENV') ?: 'dev';
 $app->register(new Silex\Provider\ServiceControllerServiceProvider());
 $app->register(new Silex\Provider\SwiftmailerServiceProvider());
 $app->register(new Igorw\Silex\ConfigServiceProvider(__DIR__ . "/Config/{$app['env']}.php"));
+
+require 'services.php';
+require 'repositories.php';
