@@ -7,6 +7,14 @@ $validateUser = function (\Symfony\Component\HttpFoundation\Request $request, \S
     return $app['oauth2.controller']->validateRequest($request, 'user');
 };
 
+$app['oauth2.controller'] = $app->share(function () use ($app) {
+    return new \Alerts\Controllers\OAuth2(
+        $app['oauth2.service'],
+        $app['users.repository'],
+        $app['log.service']
+    );
+});
+
 $app['install.controller'] = $app->share(function () use ($app) {
     return new \Alerts\Controllers\Install(
         $app['github.repository'],

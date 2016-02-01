@@ -7,7 +7,9 @@
         "igorw/config-service-provider": "^1.2",
         "monolog/monolog": "^1.17",
         "symfony/templating": "^2.7",
-        "robmorgan/phinx": "^0.5.1"
+        "robmorgan/phinx": "^0.5.1",
+        "bshaffer/oauth2-server-php": "^1.8",
+        "bshaffer/oauth2-server-httpfoundation-bridge": "^1.1"
     },
 
     "autoload": {
