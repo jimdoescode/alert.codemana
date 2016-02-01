@@ -29,11 +29,11 @@ class CreateIntialTables extends AbstractMigration
     {
         $users = $this->table('users');
         $users->addColumn('email', 'string', ['length' => 255])
-            ->addColumn('githubId', 'biginteger', ['signed' => false])
-            ->addColumn('githubAccessToken', 'string', ['length' => 255])
+            ->addColumn('github_id', 'biginteger', ['signed' => false])
+            ->addColumn('github_access_token', 'string', ['length' => 255])
             ->addTimestamps()
             ->addIndex('email', ['unique' => true])
-            ->addIndex('githubId', ['unique' => true])
+            ->addIndex('github_id', ['unique' => true])
             ->create();
         //Phinx is dumb and doesn't make Auto Incrementing Primary Keys unsigned when it creates them for you
         $users->changeColumn('id', 'integer', ['signed' => false, 'identity' => true])->update();
