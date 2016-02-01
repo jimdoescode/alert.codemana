@@ -22,7 +22,7 @@ $app['hook.controller'] = $app->share(function () use ($app) {
 
 $app['github.login.controller'] = $app->share(function () use ($app) {
     return new \Alerts\Controllers\GitHubLogin(
-        $app['user.repository'],
+        $app['users.repository'],
         $app['github.repository'],
         $app['log.service']
     );
