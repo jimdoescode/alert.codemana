@@ -4,8 +4,13 @@ use \Symfony\Component\HttpFoundation;
 use \Alerts\Services;
 use \Alerts\Repositories\Interfaces;
 
-class GitHubLogin
+class Login
 {
+    /**
+     * @var \OAuth2\ResponseType\AccessToken
+     */
+    private $tokenGenerator;
+
     /**
      * @var Interfaces\Users
      */
@@ -22,17 +27,20 @@ class GitHubLogin
     private $logger;
 
     /**
+     * @param \OAuth2\ResponseType\AccessToken $tokenGenerator
+     * @param Interfaces\Users $userRepo
      * @param Interfaces\GitHub $github
      * @param \Monolog\Logger $logger
      */
-    public function __construct(Interfaces\Users $userRepo, Interfaces\GitHub $github, \Monolog\Logger $logger)
+    public function __construct(\OAuth2\ResponseType\AccessToken $tokenGenerator, Interfaces\Users $userRepo, Interfaces\GitHub $github, \Monolog\Logger $logger)
     {
+        $this->tokenGenerator = $tokenGenerator;
         $this->userRepo = $userRepo;
         $this->github = $github;
         $this->logger = $logger;
     }
 
-    public function getAuthorize(HttpFoundation\Request $request)
+    public function getGitHubAuthorize(HttpFoundation\Request $request)
     {
         $code = $request->get('code');
         if (is_null($code)) {
@@ -47,7 +55,17 @@ class GitHubLogin
             $user->id = $dbUser[0]->id;
         }
 
-        $this->userRepo->save($user);
-        return new HttpFoundation\JsonResponse($user);
+        if ($this->userRepo->save($user)) {
+            //Add an access token to the user for this one time so that
+            //they have something to use to contact our service again.
+            $token = $this->tokenGenerator->createAccessToken('codemana', $user->id, 'user', true);
+
+            return new HttpFoundation\JsonResponse([
+                'user' => $user,
+                'token' => $token
+            ]);
+        }
+
+        return new HttpFoundation\Response('Failed Login', 500);
     }
 }

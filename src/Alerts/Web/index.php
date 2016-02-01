@@ -2,6 +2,11 @@
 
 require '../bootstrap.php';
 
+//Set up routing with OAuth middleware that will be run before each secured request
+$validateUser = function (\Symfony\Component\HttpFoundation\Request $request, \Silex\Application $app) {
+    return $app['oauth2.controller']->validateRequest($request, 'user');
+};
+
 $app['install.controller'] = $app->share(function () use ($app) {
     return new \Alerts\Controllers\Install(
         $app['github.repository'],
@@ -20,8 +25,9 @@ $app['hook.controller'] = $app->share(function () use ($app) {
     );
 });
 
-$app['github.login.controller'] = $app->share(function () use ($app) {
-    return new \Alerts\Controllers\GitHubLogin(
+$app['login.controller'] = $app->share(function () use ($app) {
+    return new \Alerts\Controllers\Login(
+        $app['oauth2.token.service'],
         $app['users.repository'],
         $app['github.repository'],
         $app['log.service']
@@ -34,7 +40,7 @@ $app->error(function(\Exception $e, $code) use ($app) {
     if ($app['debug']) {
         $response['file'] = $e->getFile();
         $response['line'] = $e->getLine();
-        $response['trace'] = $e->getTrace();
+        $response['trace'] = $e->getTraceAsString();
     }
 
     $app['log.service']->error($e->getMessage(), [
@@ -62,7 +68,7 @@ $app->get('/', function (\Symfony\Component\HttpFoundation\Request $request) use
 });
 
 $app->post('/hooks/github', 'hook.controller:postGitHub');
-$app->get('/hooks/github/install', 'install.controller:postGitHub');
-$app->get('/github/login', 'github.login.controller:getAuthorize');
+$app->post('/hooks/github/install', 'install.controller:postGitHub');
+$app->get('/github/login', 'login.controller:getGitHubAuthorize');
 
 $app->run();

@@ -36,3 +36,31 @@ $app['log.service'] = $app->share(function () use ($app) {
     ];
     return new \Monolog\Logger($app['log']['name'], $handlers);
 });
+
+$app['oauth2.storage.service'] = $app->share(function () use ($app) {
+    //return new \OAuth2\Storage\DynamoDB($app['dynamodb.service'], $app['database']['dynamodb']['oauth']);
+    //return new OAuth2\Storage\Memory();
+    return new OAuth2\Storage\Pdo($app['pdo.service'], [
+        'client_table' => 'oauth_clients',
+        'access_token_table' => 'oauth_access_tokens',
+        'code_table' => 'oauth_authorizations',
+        'refresh_token_table' => 'oauth_refresh_tokens',
+        'scope_table' => 'oauth_scopes'
+    ]);
+});
+
+$app['oauth2.service'] = $app->share(function () use ($app) {
+    return new \OAuth2\Server($app['oauth2.storage.service']);
+});
+
+/**
+ * Because we don't have a "normal" login process we need to
+ * make an access token without going through the whole token
+ * exchange process. This service will let us do that.
+ */
+$app['oauth2.token.service'] = $app->share(function () use ($app) {
+    return new \OAuth2\ResponseType\AccessToken(
+        $app['oauth2.storage.service'],
+        $app['oauth2.storage.service']
+    );
+});
