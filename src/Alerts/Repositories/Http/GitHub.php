@@ -163,8 +163,30 @@ class GitHub implements Interfaces\GitHub
         });
 
         if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
-            $user->email = $response['email'];
-            $user->githubId = $response['id'];
+            $userData = json_decode($response->getBody(), true);
+            $user->email = $userData['email'];
+            $user->githubId = $userData['id'];
+        }
+
+        //If we didn't get an email in the user request
+        //then make a special request to get it.
+        if (is_null($user->email)) {
+            $response = $this->retryWithExponentialBackoff(3, function () use ($user) {
+                return $this->client->get('/user/emails', [
+                    'headers' => [
+                        'Authorization' => "token {$user->githubAccessToken}",
+                    ]
+                ]);
+            });
+
+            if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+                $emails = json_decode($response->getBody(), true);
+                foreach ($emails as $email) {
+                    if ($email['primary']) {
+                        $user->email = $email['email'];
+                    }
+                }
+            }
         }
 
         //Fetch user's repos.
