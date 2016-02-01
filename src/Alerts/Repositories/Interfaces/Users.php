@@ -13,14 +13,6 @@ interface Users
     public function getById($userId);
 
     /**
-     * Get a user based on email address
-     *
-     * @param $email
-     * @return Models\User | null
-     */
-    public function getByEmail($email);
-
-    /**
      * Get all users that match the specified filter.
      *
      * @param array $filters
@@ -31,6 +23,8 @@ interface Users
     public function getAll(array $filters = [], $count = 10, $start = 0);
 
     /**
+     * Creates or updates a user in a data source.
+     *
      * @param Models\User &$user
      * @return bool
      */

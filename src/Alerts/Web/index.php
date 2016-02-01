@@ -20,8 +20,9 @@ $app['hook.controller'] = $app->share(function () use ($app) {
     );
 });
 
-$app['github.oauth.controller'] = $app->share(function () use ($app) {
-    return new \Alerts\Controllers\GitHubOAuth(
+$app['github.login.controller'] = $app->share(function () use ($app) {
+    return new \Alerts\Controllers\GitHubLogin(
+        $app['user.repository'],
         $app['github.repository'],
         $app['log.service']
     );
@@ -62,6 +63,6 @@ $app->get('/', function (\Symfony\Component\HttpFoundation\Request $request) use
 
 $app->post('/hooks/github', 'hook.controller:postGitHub');
 $app->get('/hooks/github/install', 'install.controller:postGitHub');
-$app->get('/github/authorize', 'github.oauth.controller:getAuthorize');
+$app->get('/github/login', 'github.login.controller:getAuthorize');
 
 $app->run();
