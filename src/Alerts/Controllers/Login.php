@@ -24,20 +24,20 @@ class Login
     /**
      * @var \Monolog\Logger
      */
-    private $logger;
+    private $log;
 
     /**
      * @param \OAuth2\ResponseType\AccessToken $tokenGenerator
      * @param Interfaces\Users $userRepo
      * @param Interfaces\GitHub $github
-     * @param \Monolog\Logger $logger
+     * @param \Monolog\Logger $log
      */
-    public function __construct(\OAuth2\ResponseType\AccessToken $tokenGenerator, Interfaces\Users $userRepo, Interfaces\GitHub $github, \Monolog\Logger $logger)
+    public function __construct(\OAuth2\ResponseType\AccessToken $tokenGenerator, Interfaces\Users $userRepo, Interfaces\GitHub $github, \Monolog\Logger $log)
     {
         $this->tokenGenerator = $tokenGenerator;
         $this->userRepo = $userRepo;
         $this->github = $github;
-        $this->logger = $logger;
+        $this->log = $log;
     }
 
     public function getGitHubAuthorize(HttpFoundation\Request $request)
