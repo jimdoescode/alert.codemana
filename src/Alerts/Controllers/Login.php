@@ -64,6 +64,8 @@ class Login
                 'user' => $user,
                 'token' => $token
             ]);
+
+            //TODO: The user no longer comes with any repositories. The front end is expected to fetch those separately.
         }
 
         return new HttpFoundation\Response('Failed Login', 500);

@@ -189,26 +189,6 @@ class GitHub implements Interfaces\GitHub
             }
         }
 
-        //Fetch user's repos.
-        $response = $this->retryWithExponentialBackoff(3, function () use ($user) {
-            return $this->client->get('/user/repos', [
-                'headers' => [
-                    'Authorization' => "token {$user->githubAccessToken}",
-                ]
-            ]);
-        });
-
-        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
-            $repos = json_decode($response->getBody(), true);
-            $user->githubRepos = [];
-            foreach ($repos as $repo) {
-                $model = new Models\Repo();
-                $model->name = $repo['full_name'];
-                $model->isAdmin = $repo['permissions']['admin'];
-                $user->githubRepos[] = $model;
-            }
-        }
-
         return isset($user->githubId, $user->githubAccessToken) ? $user : null;
     }
 
@@ -242,7 +222,6 @@ class GitHub implements Interfaces\GitHub
         //TODO: If we weren't successful then we should probably log what the response is.
         return $response->getStatusCode() >= 200 && $response->getStatusCode() < 300;
     }
-
 
     /**
      * Runs a closure until it succeeds or the maximum number of attempts is reached.

@@ -21,9 +21,4 @@ class User
      * @var string
      */
     public $githubAccessToken;
-
-    /**
-     * @var Repo[]
-     */
-    public $githubRepos;
 }
