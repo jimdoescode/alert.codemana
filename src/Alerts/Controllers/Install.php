@@ -25,43 +25,73 @@ class Install
     /**
      * @var \Monolog\Logger
      */
-    private $logger;
+    private $log;
 
     /**
      * Install constructor.
      * @param Interfaces\GitHub $githubRepo
      * @param Interfaces\WatchedRepos $watchedReposRepository
      * @param string $baseUrl
-     * @param \Monolog\Logger $logger
+     * @param \Monolog\Logger $log
      */
     public function __construct(Interfaces\GitHub $githubRepo,
                                 Interfaces\WatchedRepos $watchedReposRepository,
                                 $baseUrl,
-                                \Monolog\Logger $logger)
+                                \Monolog\Logger $log)
     {
         $this->githubRepo = $githubRepo;
         $this->watchedReposRepository = $watchedReposRepository;
         $this->baseUrl = $baseUrl;
-        $this->logger = $logger;
+        $this->log = $log;
     }
 
-    public function postGithub(HttpFoundation\Request $request)
+    /**
+     * @param HttpFoundation\Request $request
+     * @return HttpFoundation\Response
+     */
+    public function postGitHub(HttpFoundation\Request $request)
     {
-        //$rawContent = $request->getContent();
-        //$repoContent = json_decode($rawContent, true);
+        $rawContent = $request->getContent();
+        $repoContent = json_decode($rawContent, true);
 
-        $repo = new Models\Repo();
-        //$repo->name = $repoContent['name'];
-        $repo->name = 'jimdoescode/alert.codemana.com';
+        $watchedRepo = $this->watchedReposRepository->createNew($repoContent['name']);
 
         //This should come from the OAuth token.
-        $user = new Models\User();
-        $user->githubAccessToken = 'dd800d1fd1d71866328d4e78bb42684509eb73c4';
-
-        $this->githubRepo->installHook(
+        $user = $request->get('user');
+        $success = $this->githubRepo->installHook(
             $user,
-            $this->watchedReposRepository->createNew($repo),
+            $watchedRepo,
             $this->baseUrl
         );
+
+        if ($success) {
+            return $this->watchedReposRepository->save($watchedRepo) ?
+                new HttpFoundation\JsonResponse($watchedRepo, 201) :
+                new HttpFoundation\Response('Failed to Save', 507);
+        }
+
+        return new HttpFoundation\Response('GitHub Request Failed', 502);
+    }
+
+    /**
+     * Options request for any Installation request.
+     *
+     * @param HttpFoundation\Request $request
+     * @return HttpFoundation\Response
+     */
+    public function optionsIndex(HttpFoundation\Request $request)
+    {
+        $this->log->addDebug(print_r($request, true), [
+            'namespace' => 'Alerts\\Controllers\\Install',
+            'method' => 'optionsIndex',
+            'type' => 'request'
+        ]);
+
+        $response = new HttpFoundation\Response('OK');
+        $response->headers->add([
+            'Access-Control-Allow-Methods' => 'POST, OPTIONS',
+        ]);
+
+        return $response;
     }
 }

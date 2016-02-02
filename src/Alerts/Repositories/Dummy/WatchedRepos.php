@@ -22,11 +22,22 @@ class WatchedRepos implements Interfaces\WatchedRepos
         return $model;
     }
 
-    public function createNew(Models\Repo $repo)
+    /**
+     * @param array $filters
+     * @param int $count
+     * @param int $start
+     * @return Models\WatchedRepo[]
+     */
+    public function getAll(array $filters = [], $count = 10, $start = 0)
+    {
+        return [];
+    }
+
+    public function createNew($name)
     {
         $model = new Models\WatchedRepo();
         $model->id = 46534257;
-        $model->name = $repo->name;
+        $model->name = $name;
         $model->secret = 'super_secret_key_thingy';
         return $model;
     }

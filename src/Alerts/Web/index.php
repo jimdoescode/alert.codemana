@@ -2,6 +2,22 @@
 
 require '../bootstrap.php';
 
+$addCorsHeaders = function (\Symfony\Component\HttpFoundation\Request $request,
+                            \Symfony\Component\HttpFoundation\Response $response) use ($app) {
+
+    $response->headers->set('Access-Control-Allow-Origin', $app['project.url'], false);
+    return $response;
+};
+
+//Pre-flight responses should include the needed CORS headers.
+$addOptionsHeaders = function (\Symfony\Component\HttpFoundation\Request $request,
+                               \Symfony\Component\HttpFoundation\Response $response) use ($app) {
+
+    $response->headers->set('Access-Control-Allow-Methods', 'POST, PUT, GET, DELETE, OPTIONS', false);
+    $response->headers->set('Access-Control-Allow-Headers', 'Origin, Accept, Authorization, Content-Type, X-Requested-With', false);
+    return $response;
+};
+
 //Set up routing with OAuth middleware that will be run before each secured request
 $validateUser = function (\Symfony\Component\HttpFoundation\Request $request, \Silex\Application $app) {
     return $app['oauth2.controller']->validateRequest($request, 'user');
@@ -75,8 +91,21 @@ $app->get('/', function (\Symfony\Component\HttpFoundation\Request $request) use
     );
 });
 
+//Api Routes
+$app->post('/token', 'oauth2.controller:postToken')
+    ->after($addCorsHeaders);
+$app->options('/token', 'oauth2.controller:optionsToken')
+    ->after($addCorsHeaders)
+    ->after($addOptionsHeaders);
+$app->post('/hooks/github/install', 'install.controller:postGitHub')
+    ->before($validateUser)
+    ->after($addCorsHeaders);
+$app->options('/hooks/github/install', 'install.controller:optionsIndex')
+    ->after($addCorsHeaders)
+    ->after($addOptionsHeaders);
+
+//Direct routes
 $app->post('/hooks/github', 'hook.controller:postGitHub');
-$app->post('/hooks/github/install', 'install.controller:postGitHub');
 $app->get('/github/login', 'login.controller:getGitHubAuthorize');
 
 $app->run();

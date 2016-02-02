@@ -29,6 +29,47 @@ class OAuth2
     }
 
     /**
+     * Handle an OAuth2 Token request.
+     * https://github.com/bshaffer/oauth2-demo-php/blob/master/src/OAuth2Demo/Server/Controllers/Token.php
+     *
+     * @param HttpFoundation\Request $request
+     * @return \OAuth2\Response|\OAuth2\ResponseInterface
+     */
+    public function postToken(HttpFoundation\Request $request)
+    {
+        $this->log->addDebug(print_r($request, true), [
+            'namespace' => 'Alerts\\Controllers\\OAuth',
+            'method' => 'postToken',
+            'type' => 'request'
+        ]);
+
+        //Make sure to pass in the HttpFoundationBridge\Response otherwise you'll get back 200s instead of 400s
+        return $this->server->handleTokenRequest(HttpFoundationBridge\Request::createFromRequest($request), new HttpFoundationBridge\Response());
+    }
+
+    /**
+     * Options request for OAuth.
+     *
+     * @param HttpFoundation\Request $request
+     * @return HttpFoundation\Response
+     */
+    public function optionsToken(HttpFoundation\Request $request)
+    {
+        $this->log->addDebug(print_r($request, true), [
+            'namespace' => 'Alerts\\Controllers\\OAuth',
+            'method' => 'optionsToken',
+            'type' => 'request'
+        ]);
+
+        $response = new HttpFoundation\Response('OK');
+        $response->headers->add([
+            'Access-Control-Allow-Methods' => 'POST, OPTIONS',
+        ]);
+
+        return $response;
+    }
+
+    /**
      * Validates a request and takes a scope value that could result
      * in a user id being put into the request if it's valid.
      *

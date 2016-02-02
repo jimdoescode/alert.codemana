@@ -11,9 +11,18 @@ interface WatchedRepos
     public function getById($id);
 
     /**
+     * @param array $filters
+     * @param int $count
+     * @param int $start
+     * @return Models\WatchedRepo[]
+     */
+    public function getAll(array $filters = [], $count = 10, $start = 0);
+
+    /**
+     * @param string $name
      * @return Models\WatchedRepo
      */
-    public function createNew(Models\Repo $repo);
+    public function createNew($name);
 
     /**
      * @param Models\WatchedRepo &$model
