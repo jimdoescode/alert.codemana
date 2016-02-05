@@ -40,6 +40,14 @@ $app['install.controller'] = $app->share(function () use ($app) {
     );
 });
 
+$app['home.controller'] = $app->share(function () use ($app) {
+    return new \Alerts\Controllers\Home(
+        $app['view.service'],
+        $app['github']['client_id'],
+        $app['log.service']
+    );
+});
+
 $app['hook.controller'] = $app->share(function () use ($app) {
     return new \Alerts\Controllers\Hook(
         $app['github.repository'],
@@ -76,7 +84,7 @@ $app->error(function(\Exception $e, $code) use ($app) {
     return new \Symfony\Component\HttpFoundation\JsonResponse($response, $code);
 });
 
-$app->get('/', function (\Symfony\Component\HttpFoundation\Request $request) use ($app) {
+/*$app->get('/', function (\Symfony\Component\HttpFoundation\Request $request) use ($app) {
     $patchModels = $app['github.repository']->getChangePatches(
         'jimdoescode/alert.codemana.com',
         '875d94292d3ccf09486431f27b9282473c0b4dc3',
@@ -90,6 +98,7 @@ $app->get('/', function (\Symfony\Component\HttpFoundation\Request $request) use
         200
     );
 });
+*/
 
 //Api Routes
 $app->post('/token', 'oauth2.controller:postToken')
@@ -107,5 +116,10 @@ $app->options('/hooks/github/install', 'install.controller:optionsIndex')
 //Direct routes
 $app->post('/hooks/github', 'hook.controller:postGitHub');
 $app->get('/github/login', 'login.controller:getGitHubAuthorize');
+
+$app->get('/', 'home.controller:getIndex')
+    ->before(function (\Symfony\Component\HttpFoundation\Request $request, \Silex\Application $app) {
+        return $app['oauth2.controller']->validateRequest($request, 'user', true);
+    });
 
 $app->run();

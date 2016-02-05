@@ -71,13 +71,16 @@ class OAuth2
 
     /**
      * Validates a request and takes a scope value that could result
-     * in a user id being put into the request if it's valid.
+     * in a user id being put into the request if it's valid. The
+     * passThrough flag will allow the request to continue when it
+     * would otherwise fail with a 401 response.
      *
      * @param HttpFoundation\Request $request
      * @param string $scope
+     * @param bool $passThrough
      * @return null|HttpFoundation\Response
      */
-    public function validateRequest(HttpFoundation\Request $request, $scope)
+    public function validateRequest(HttpFoundation\Request $request, $scope, $passThrough = false)
     {
         $this->log->addDebug(print_r($request, true), [
             'namespace' => 'Alerts\\Controllers\\OAuth2',
@@ -100,9 +103,20 @@ class OAuth2
             }
 
             return null;
+
+        //If the request shouldn't hard fail. This should only have a few specific use cases.
+        } elseif ($passThrough) {
+            $this->log->addInfo('OAuth Pass Through', [
+                'namespace' => 'Alerts\\Controllers\\OAuth2',
+                'method' => 'validateRequest',
+                'type' => 'request',
+                'scope' => $scope,
+                'passThrough' => true
+            ]);
+            return null;
         }
 
-        $this->log->addWarning('Failed to validate request', [
+        $this->log->addInfo('Failed to validate request', [
             'namespace' => 'Alerts\\Controllers\\OAuth2',
             'method' => 'validateRequest',
             'scope' => $scope
