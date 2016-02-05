@@ -27,11 +27,19 @@ return [
     'swiftmailer.use_spool' => false,
     'swiftmailer.options' => [
         'host' => '',
-        'port' => '587',
+        'port' => '',
         'username' => '',
         'password' => '',
         'encryption' => 'tls',
         'auth_mode' => null,
     ],
 
+    'database' => [
+        'pdo' => [
+            'dbname'     => '',
+            'connection' => '',
+            'user'       => '',
+            'password'   => ''
+        ],
+    ],
 ];

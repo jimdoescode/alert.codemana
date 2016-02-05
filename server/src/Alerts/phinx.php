@@ -12,7 +12,7 @@ require 'bootstrap.php';
 
 return [
     //Point Phinx at the Migrations directory
-    'paths' => ['migrations' => __DIR__.'/Migrations'],
+    'paths' => ['migrations' => __DIR__ . '/Migrations'],
 
     //Set the database to whatever is configured during bootstrap
     'environments' => [
