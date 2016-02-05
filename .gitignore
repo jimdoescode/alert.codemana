@@ -3,3 +3,6 @@
 vendor
 composer.lock
 node_modules
+npm-debug.log
+server/src/Alerts/Web/js/script.js
+server/src/Alerts/Web/css/style.css
