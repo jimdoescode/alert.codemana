@@ -1,6 +1,10 @@
 var React = require("react");
 
 module.exports = React.createClass({
+    shouldComponentUpdate: function(newProps, newState) {
+        return false; //No need to update this thing, it's static
+    },
+
     render: function() {
         return (
             <footer>

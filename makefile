@@ -1,5 +1,5 @@
 .PHONY: client
 
 client:
-	cd ./client && pwd && npm run build-dev-css && npm run build-dev-js
+	cd ./client && npm run build-dev-css && npm run build-dev-js
 
