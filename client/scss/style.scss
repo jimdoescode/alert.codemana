@@ -1,3 +1,83 @@
 @import "pure-min";
 @import "font-awesome.min";
 
+$danger:  #ab4526;
+$danger-lite: #ce6849;
+$primary: #4383c1;
+$primary-lite: #54b0ff;
+$text-color: #eee;
+$header-font-size: 12pt;
+$header-height: 50px;
+$footer-font-size: 8pt;
+
+@import url(//fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700);
+a, .pure-menu-link, .pure-menu-heading {
+    color: $danger-lite;
+    text-decoration: none;
+}
+a:hover {
+    color: $danger;
+    text-decoration: underline;
+}
+.app-header {
+    nav {
+        border-bottom: 1px solid #000;
+        background-color: #282a2b;
+        height: $header-height;
+        font-size: $header-font-size;
+        padding-top: 0.5em;
+        text-shadow: 0 -.1em .2em #000;
+
+        .pure-menu-link {
+            padding-top: 0;
+        }
+        .pure-menu-link:focus, .pure-menu-link:hover {
+            background-color: transparent;
+            text-decoration: none;
+        }
+
+        .logo {
+            font-size: $header-font-size + 4pt;
+            padding: 0;
+            font-family: 'Yanone Kaffeesatz', sans-serif;
+
+            .fa-flask {
+                font-size: $header-font-size + 6pt;
+                color: $primary-lite;
+            }
+        }
+        .logo:hover, .logo:focus {
+            text-decoration: none;
+
+            .fa-flask {color: $primary;}
+        }
+    }
+}
+body {background-color: #37393a;}
+.button {
+    color: $text-color;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+.button-primary {
+    @extend .button;
+    background-color: $primary;
+}
+.button-error {
+    @extend .button;
+    background-color: $danger;
+}
+.container {
+    width: 1140px;
+    margin: auto;
+}
+footer {
+    margin-top: 20px;
+    font-size: $footer-font-size;
+    color: $text-color;
+    text-align: right;
+}
+.main {
+    padding-top: $header-height;
+}
+.pull-left {float: left;}
+.pull-right {float: right;}

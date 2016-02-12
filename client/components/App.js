@@ -2,12 +2,26 @@
 //accessed on the main page.
 React  = require("react");
 ReactDOM = require("react-dom");
+
+var AppHeader = require("./AppHeader.js");
+var AppFooter = require("./AppFooter.js");
+var Watcher = require("./Watcher.js");
+var LoginButtons = require("./LoginButtons.js");
+
 App = React.createClass({
+    propTypes: {
+        'isLoggedIn': React.PropTypes.bool,
+        'githubClientId': React.PropTypes.string
+    },
+
     render: function() {
         return (
             <div className="app">
-                <h1>Hello World!</h1>
-                <div>{this.props.isLoggedIn ? 'logged in!' : 'nope'}</div>
+                <AppHeader/>
+                <div className="container main">
+                    {this.props.isLoggedIn ? <Watcher/> : <LoginButtons/>}
+                </div>
+                <AppFooter/>
             </div>
         );
     }
