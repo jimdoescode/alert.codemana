@@ -43,11 +43,13 @@ class Login
     public function getGitHubAuthorize(HttpFoundation\Request $request)
     {
         $code = $request->get('code');
-        if (is_null($code)) {
-            return $this->github->getAuthorizationRedirect();
+        $state = $request->get('state');
+
+        if (is_null($code) || is_null($state)) {
+            return new HttpFoundation\Response('Invalid GitHub Request Params', 400);
         }
 
-        $user = $this->github->getUserFromOAuth($code);
+        $user = $this->github->getUserFromOAuth($code, $state);
         //Check to see if we already have this user. If so then set their
         //ID so we update the user instead of creating a new one.
         $dbUser = $this->userRepo->getAll(['githubId' => $user->githubId], 1);

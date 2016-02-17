@@ -106,12 +106,13 @@ $app->post('/token', 'oauth2.controller:postToken')
 $app->options('/token', 'oauth2.controller:optionsToken')
     ->after($addCorsHeaders)
     ->after($addOptionsHeaders);
-$app->post('/hooks/github/install', 'install.controller:postGitHub')
+/*$app->post('/hooks/github/install', 'install.controller:postGitHub')
     ->before($validateUser)
     ->after($addCorsHeaders);
 $app->options('/hooks/github/install', 'install.controller:optionsIndex')
     ->after($addCorsHeaders)
     ->after($addOptionsHeaders);
+*/
 
 //Direct routes
 $app->post('/hooks/github', 'hook.controller:postGitHub');

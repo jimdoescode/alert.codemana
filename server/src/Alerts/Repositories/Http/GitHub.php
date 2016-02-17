@@ -134,12 +134,12 @@ class GitHub implements Interfaces\GitHub
         return $patch;
     }
 
-    public function getUserFromOAuth($code)
+    public function getUserFromOAuth($code, $state)
     {
-        $response = $this->retryWithExponentialBackoff(3, function () use ($code) {
+        $response = $this->retryWithExponentialBackoff(3, function () use ($code, $state) {
             return $this->client->post('/login/oauth/access_token', [
                 'base_uri' => 'https://github.com',
-                'body' => "client_id={$this->clientId}&client_secret={$this->clientSecret}&code={$code}"
+                'body' => "client_id={$this->clientId}&client_secret={$this->clientSecret}&code={$code}&state={$state}"
             ]);
         });
 
@@ -190,12 +190,6 @@ class GitHub implements Interfaces\GitHub
         }
 
         return isset($user->githubId, $user->githubAccessToken) ? $user : null;
-    }
-
-    public function getAuthorizationRedirect()
-    {
-        $url = "https://github.com/login/oauth/authorize?client_id={$this->clientId}&scope=user:email,repo";
-        return new HttpFoundation\RedirectResponse($url);
     }
 
     public function installHook(Models\User $user, Models\WatchedRepo $repo, $callbackUrl)

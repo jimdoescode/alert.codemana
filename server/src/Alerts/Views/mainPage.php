@@ -12,7 +12,6 @@
         <script>
             ReactDOM.render(
                 React.createElement(App, {
-                    'isLoggedIn': <?=$loggedIn ? 'true' : 'false';?>,
                     'githubClientId': '<?=$githubClientId;?>'
                 }),
                 document.getElementById('mount-point')

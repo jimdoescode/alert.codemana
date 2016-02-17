@@ -23,16 +23,10 @@ interface GitHub
      * data to construct a user model
      *
      * @param $code
+     * @param $state
      * @return Models\User
      */
-    public function getUserFromOAuth($code);
-
-    /**
-     * Generates a redirect response to use for OAuth token authorization
-     *
-     * @return HttpFoundation\RedirectResponse
-     */
-    public function getAuthorizationRedirect();
+    public function getUserFromOAuth($code, $state);
 
     /**
      * Installs the hook

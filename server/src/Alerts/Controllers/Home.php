@@ -36,8 +36,7 @@ class Home
     public function getIndex(HttpFoundation\Request $request)
     {
         return $this->view->render('mainPage', [
-            'githubClientId' => $this->githubClientId,
-            'loggedIn' => !is_null($request->get('user'))
+            'githubClientId' => $this->githubClientId
         ]);
     }
 }
